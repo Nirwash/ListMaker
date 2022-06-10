@@ -1,21 +1,25 @@
 package com.nirwashh.android.listmaker.ui.main
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.nirwashh.android.listmaker.R
+import com.nirwashh.android.listmaker.TaskList
 import com.nirwashh.android.listmaker.databinding.FragmentMainBinding
 
-class MainFragment : Fragment() {
+class MainFragment(private val clickListener: MainFragmentInteractionListener) : Fragment(), ListSelectionRecyclerViewAdapter.ListSelectionRecyclerViewClickListener {
     private lateinit var b: FragmentMainBinding
 
+    interface MainFragmentInteractionListener {
+        fun listItemTapped(list: TaskList)
+    }
+
     companion object {
-        fun newInstance() = MainFragment()
+        fun newInstance(clickListener: MainFragmentInteractionListener) = MainFragment(clickListener)
     }
 
     private lateinit var viewModel: MainViewModel
@@ -34,11 +38,15 @@ class MainFragment : Fragment() {
         viewModel = ViewModelProvider(requireActivity(),
         MainViewModelFactory(PreferenceManager.getDefaultSharedPreferences(requireActivity())))
             .get(MainViewModel::class.java)
-        val recyclerViewAdapter = ListSelectionRecyclerViewAdapter(viewModel.lists)
+        val recyclerViewAdapter = ListSelectionRecyclerViewAdapter(viewModel.lists, this)
         b.recyclerView.adapter = recyclerViewAdapter
         viewModel.onListAdded = {
             recyclerViewAdapter.listsUpdated()
         }
+    }
+
+    override fun listItemClicked(list: TaskList) {
+        clickListener.listItemTapped(list)
     }
 
 }

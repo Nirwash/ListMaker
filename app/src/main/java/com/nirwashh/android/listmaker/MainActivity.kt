@@ -14,7 +14,7 @@ import com.nirwashh.android.listmaker.ui.main.MainFragment
 import com.nirwashh.android.listmaker.ui.main.MainViewModel
 import com.nirwashh.android.listmaker.ui.main.MainViewModelFactory
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), MainFragment.MainFragmentInteractionListener {
     private lateinit var b: ActivityMainBinding
     private lateinit var viewModel: MainViewModel
 
@@ -24,11 +24,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(b.root)
         viewModel = ViewModelProvider(this,
             MainViewModelFactory(PreferenceManager.getDefaultSharedPreferences(this))
-        )
-            .get(MainViewModel::class.java)
+        )[MainViewModel::class.java]
         if (savedInstanceState == null) {
+            val mainFragment = MainFragment.newInstance(this)
             supportFragmentManager.beginTransaction()
-                .replace(R.id.container, MainFragment.newInstance())
+                .replace(R.id.container, mainFragment)
                 .commitNow()
         }
 
@@ -48,7 +48,9 @@ class MainActivity : AppCompatActivity() {
             setView(listTitleEditText)
             setPositiveButton(positiveButtonTitle) { dialog, _ ->
                 dialog.dismiss()
-                viewModel.saveList(TaskList(listTitleEditText.text.toString()))
+                val taskList = TaskList(listTitleEditText.text.toString())
+                viewModel.saveList(taskList)
+                showListDetail(taskList)
             }
             create()
             show()
@@ -59,5 +61,13 @@ class MainActivity : AppCompatActivity() {
         val listDetailIntent = Intent(this, ListDetailActivity::class.java)
         listDetailIntent.putExtra(INTENT_LIST_KEY, list)
         startActivity(listDetailIntent)
+    }
+
+    companion object {
+        const val INTENT_LIST_KEY = "list"
+    }
+
+    override fun listItemTapped(list: TaskList) {
+        showListDetail(list)
     }
 }
