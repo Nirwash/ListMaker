@@ -1,5 +1,7 @@
 package com.nirwashh.android.listmaker.ui.detail
 
+import android.app.Activity
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
@@ -7,6 +9,7 @@ import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
 import com.nirwashh.android.listmaker.MainActivity
+import com.nirwashh.android.listmaker.MainActivity.Companion.INTENT_LIST_KEY
 import com.nirwashh.android.listmaker.R
 import com.nirwashh.android.listmaker.TaskList
 import com.nirwashh.android.listmaker.databinding.ListDetailActivityBinding
@@ -27,13 +30,22 @@ class ListDetailActivity : AppCompatActivity() {
             showCreateTaskDialog()
         }
         viewModel = ViewModelProvider(this)[ListDetailViewModel::class.java]
-        viewModel.list = intent.getParcelableExtra(MainActivity.INTENT_LIST_KEY)!!
+        viewModel.list = intent.getParcelableExtra(INTENT_LIST_KEY)!!
         title = viewModel.list.name
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.container, ListDetailFragment.newInstance())
                 .commitNow()
         }
+    }
+
+    override fun onBackPressed() {
+        val bundle = Bundle()
+        bundle.putParcelable(INTENT_LIST_KEY, viewModel.list)
+        val intent = Intent()
+        intent.putExtras(bundle)
+        setResult(Activity.RESULT_OK, intent)
+        super.onBackPressed()
     }
 
     private fun showCreateTaskDialog() {
