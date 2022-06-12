@@ -80,6 +80,21 @@ class MainActivity : AppCompatActivity(), MainFragment.MainFragmentInteractionLi
         }
     }
 
+    private fun showCreateTaskDialog() {
+        val taskEditText = EditText(this)
+        taskEditText.inputType = InputType.TYPE_CLASS_TEXT
+        AlertDialog.Builder(this)
+            .setTitle(R.string.task_to_add)
+            .setView(taskEditText)
+            .setPositiveButton(R.string.add_task) { dialog, _ ->
+                val task = taskEditText.text.toString()
+                viewModel.addTask(task)
+                dialog.dismiss()
+            }
+            .create()
+            .show()
+    }
+
     private fun showListDetail(list: TaskList) {
         if (b.mainFragmentContainer == null) {
             val listDetailIntent = Intent(this, ListDetailActivity::class.java)
@@ -93,6 +108,26 @@ class MainActivity : AppCompatActivity(), MainFragment.MainFragmentInteractionLi
                     ListDetailFragment::class.java,
                     bundle,
                     null)
+            }
+            b.fabButton.setOnClickListener {
+                showCreateTaskDialog()
+            }
+        }
+    }
+
+    override fun onBackPressed() {
+        val listDetailFragment =
+            supportFragmentManager.findFragmentById(R.id.list_detail_fragment_container)
+        if (listDetailFragment == null) {
+            super.onBackPressed()
+        } else {
+            title = resources.getString(R.string.app_name)
+            supportFragmentManager.commit {
+                setReorderingAllowed(true)
+                remove(listDetailFragment)
+            }
+            b.fabButton.setOnClickListener {
+                showCreateListDialog()
             }
         }
     }

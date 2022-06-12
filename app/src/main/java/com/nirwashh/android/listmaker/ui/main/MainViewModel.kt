@@ -6,6 +6,8 @@ import com.nirwashh.android.listmaker.TaskList
 
 class MainViewModel(private val sharedPreferences: SharedPreferences) : ViewModel() {
 
+    lateinit var list: TaskList
+    lateinit var onTaskAdded: (() -> Unit)
     lateinit var onListAdded: (() -> Unit)
     val lists: MutableList<TaskList> by lazy {
         retrieveLists()
@@ -20,6 +22,11 @@ class MainViewModel(private val sharedPreferences: SharedPreferences) : ViewMode
             taskLists.add(list)
         }
         return taskLists
+    }
+
+    fun addTask(task: String) {
+        list.tasks.add(task)
+        onTaskAdded.invoke()
     }
 
     fun saveList(list: TaskList) {
