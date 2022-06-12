@@ -11,15 +11,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.nirwashh.android.listmaker.TaskList
 import com.nirwashh.android.listmaker.databinding.FragmentMainBinding
 
-class MainFragment(private val clickListener: MainFragmentInteractionListener) : Fragment(), ListSelectionRecyclerViewAdapter.ListSelectionRecyclerViewClickListener {
+class MainFragment() : Fragment(), ListSelectionRecyclerViewAdapter.ListSelectionRecyclerViewClickListener {
     private lateinit var b: FragmentMainBinding
+    lateinit var clickListener: MainFragmentInteractionListener
 
     interface MainFragmentInteractionListener {
         fun listItemTapped(list: TaskList)
     }
 
     companion object {
-        fun newInstance(clickListener: MainFragmentInteractionListener) = MainFragment(clickListener)
+        fun newInstance() = MainFragment()
     }
 
     private lateinit var viewModel: MainViewModel

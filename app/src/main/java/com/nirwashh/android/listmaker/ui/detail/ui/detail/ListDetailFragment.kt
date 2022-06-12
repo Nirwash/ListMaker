@@ -7,7 +7,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.nirwashh.android.listmaker.MainActivity
 import com.nirwashh.android.listmaker.R
+import com.nirwashh.android.listmaker.TaskList
 import com.nirwashh.android.listmaker.databinding.ListDetailFragmentBinding
 
 
@@ -31,6 +33,11 @@ class ListDetailFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(requireActivity())[ListDetailViewModel::class.java]
+        val list: TaskList? = arguments?.getParcelable(MainActivity.INTENT_LIST_KEY)
+        if (list != null) {
+            viewModel.list = list
+            requireActivity().title = list.name
+        }
         val recyclerAdapter = ListItemRecyclerViewAdapter(viewModel.list)
         b.listItemsRecyclerview.apply {
             adapter = recyclerAdapter

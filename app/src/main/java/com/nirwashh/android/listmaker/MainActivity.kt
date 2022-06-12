@@ -7,10 +7,13 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
 import android.widget.EditText
+import androidx.core.os.bundleOf
+import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.nirwashh.android.listmaker.databinding.ActivityMainBinding
 import com.nirwashh.android.listmaker.ui.detail.ListDetailActivity
+import com.nirwashh.android.listmaker.ui.detail.ui.detail.ListDetailFragment
 import com.nirwashh.android.listmaker.ui.main.MainFragment
 import com.nirwashh.android.listmaker.ui.main.MainViewModel
 import com.nirwashh.android.listmaker.ui.main.MainViewModelFactory
@@ -27,10 +30,19 @@ class MainActivity : AppCompatActivity(), MainFragment.MainFragmentInteractionLi
             MainViewModelFactory(PreferenceManager.getDefaultSharedPreferences(this))
         )[MainViewModel::class.java]
         if (savedInstanceState == null) {
-            val mainFragment = MainFragment.newInstance(this)
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.container, mainFragment)
-                .commitNow()
+            val mainFragment = MainFragment.newInstance()
+            mainFragment.clickListener = this
+
+            val fragmentContainerViewId: Int = if (b.mainFragmentContainer == null) {
+                R.id.detail_container
+            } else {
+                R.id.main_fragment_container
+            }
+
+            supportFragmentManager.commit {
+                setReorderingAllowed(true)
+                add(fragmentContainerViewId, mainFragment)
+            }
         }
 
         b.fabButton.setOnClickListener {
@@ -69,9 +81,20 @@ class MainActivity : AppCompatActivity(), MainFragment.MainFragmentInteractionLi
     }
 
     private fun showListDetail(list: TaskList) {
-        val listDetailIntent = Intent(this, ListDetailActivity::class.java)
-        listDetailIntent.putExtra(INTENT_LIST_KEY, list)
-        startActivityForResult(listDetailIntent, LIST_DETAIL_REQUEST_CODE)
+        if (b.mainFragmentContainer == null) {
+            val listDetailIntent = Intent(this, ListDetailActivity::class.java)
+            listDetailIntent.putExtra(INTENT_LIST_KEY, list)
+            startActivityForResult(listDetailIntent, LIST_DETAIL_REQUEST_CODE)
+        } else {
+            val bundle = bundleOf(INTENT_LIST_KEY to list)
+            supportFragmentManager.commit {
+                setReorderingAllowed(true)
+                replace(R.id.list_detail_fragment_container,
+                    ListDetailFragment::class.java,
+                    bundle,
+                    null)
+            }
+        }
     }
 
     companion object {
